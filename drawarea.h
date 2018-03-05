@@ -21,6 +21,8 @@ public:
 	QSize  minimumSizeHint() const Q_DECL_OVERRIDE;
 	QSize  sizeHint() const Q_DECL_OVERRIDE;
 	void   mousePressEvent(QMouseEvent *event);
+	void   mouseMoveEvent(QMouseEvent *event);
+	void   mouseReleaseEvent(QMouseEvent *event);
 protected:
 	void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
 
@@ -29,7 +31,9 @@ private:
 	ShapeOption shape_option;
 //	QColor background_color;
     vector<Shape> shapes;
+	Shape *shape;
 	int x0, y0, xf, yf;
+	bool dragged, translate, rotate, scale;
 
 signals:
 

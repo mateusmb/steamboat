@@ -9,6 +9,7 @@ DrawArea::DrawArea(QWidget *parent) : QWidget(parent)
 {
 	setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
+	dragged = translate = rotate = scale = false;
 }
 
 QSize DrawArea::minimumSizeHint() const {
@@ -21,15 +22,25 @@ QSize DrawArea::sizeHint() const {
 
 void DrawArea::mousePressEvent(QMouseEvent *event) {
 	if(event->button() == Qt::LeftButton) {
-		Shape *s = new Shape;
-		s->setX(QCursor::pos().x()-67);
-		s->setY(QCursor::pos().y()-162);
-		s->setWidth(QCursor::pos().x()+30);
-        s->setHeight(QCursor::pos().y()+30);
-		std::cout << "X0: " << QCursor::pos().x() << ", Y0: " << QCursor::pos().y() << std::endl;
-		shapes.push_back(*s);
+		dragged = true;
+		x0 = xf = QCursor::pos().x() - 67;
+		y0 = yf = QCursor::pos().y() - 162;
+	}
+}
+
+void DrawArea::mouseMoveEvent(QMouseEvent *event)
+{
+	if(dragged) {
+		xf = QCursor::pos().x() - 67;
+		yf = QCursor::pos().y() - 162;
 		update();
 	}
+}
+
+void DrawArea::mouseReleaseEvent(QMouseEvent *event)
+{
+	dragged = false;
+	update();
 }
 
 void DrawArea::paintEvent(QPaintEvent *event) {
@@ -38,8 +49,20 @@ void DrawArea::paintEvent(QPaintEvent *event) {
 	painter.drawRect(this->rect());
 	painter.setPen(palette().dark().color());
 	painter.setBrush(Qt::NoBrush);
+
 	vector<Shape>::iterator it;
 	for(it = shapes.begin(); it != shapes.end(); ++it) {
 		painter.drawRect(it->X(),it->Y(),it->Width(),it->Height());
+	}
+
+	shape  = new Shape;
+	shape->setX(x0);
+	shape->setY(y0);
+	shape->setWidth(xf-x0);
+	shape->setHeight(yf-y0);
+	painter.drawRect(shape->X(),shape->Y(),shape->Width(),shape->Height());
+
+	if(!dragged) {
+		shapes.push_back(*shape);
 	}
 }
